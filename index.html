@@ -22,18 +22,22 @@
     --pix: 'Press Start 2P', monospace;
   }
   * { box-sizing: border-box; }
+  #stars { position: fixed; inset: 0; z-index: 0; image-rendering: pixelated; pointer-events: none; }
+  .wrap, header { position: relative; z-index: 1; }
+  @media (prefers-reduced-motion: reduce) { #stars { display: none; } }
   body { margin: 0; background: var(--bg); color: var(--fg);
          font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.6; }
   .wrap { max-width: 680px; margin: 0 auto; padding: 0 20px 64px; }
 
   /* ---- centered pixel logo, like the hub boot splash ---- */
-  header { min-height: 44vh; display: flex; align-items: center; justify-content: center; text-align: center; }
+  header { min-height: 26vh; display: flex; align-items: flex-end; justify-content: center; text-align: center; padding-bottom: 10px; }
   .logo { font-family: var(--pix); font-size: clamp(22px, 5.4vw, 44px); letter-spacing: 3px;
           color: #fff; text-shadow: 4px 4px 0 #23262e; line-height: 1.5; }
   .logo span { color: var(--gold); text-shadow: 4px 4px 0 #4a3a08; }
 
   h2 { font-family: var(--pix); font-size: 13px; letter-spacing: 3px; color: var(--muted);
-       text-transform: uppercase; margin: 44px 0 18px; }
+       text-transform: uppercase; margin: 40px 0 18px; }
+  h2.support { margin-top: max(90px, 14vh); }
 
   .game { display: flex; align-items: center; gap: 18px;
           background: var(--card); border: 1px solid var(--line); border-radius: 14px;
@@ -57,6 +61,7 @@
 </style>
 </head>
 <body>
+<canvas id="stars" aria-hidden="true"></canvas>
 <div class="wrap">
 
 <header>
@@ -83,7 +88,7 @@
   </div>
 </div>
 
-<h2>Support</h2>
+<h2 class="support">Support</h2>
 <p>Questions, bug reports or feedback about any of our games:
 <a href="mailto:support@everbestgames.de">support@everbestgames.de</a></p>
 
@@ -92,5 +97,50 @@
 </footer>
 
 </div>
+<script>
+// pixel starfield — chunky 1px stars on a low-res canvas, upscaled with
+// image-rendering:pixelated. Gentle sine twinkle, a rare slow shooting star.
+(function () {
+  var c = document.getElementById('stars'), x = c.getContext('2d');
+  var PX = 3, W, H, stars = [], shoot = null;
+  function size() {
+    W = Math.ceil(innerWidth / PX); H = Math.ceil(innerHeight / PX);
+    c.width = W; c.height = H;
+    c.style.width = innerWidth + 'px'; c.style.height = innerHeight + 'px';
+    stars = [];
+    var n = Math.round(W * H / 260);              // sparse — backdrop, not fireworks
+    for (var i = 0; i < n; i++) stars.push({
+      x: (Math.random() * W) | 0, y: (Math.random() * H) | 0,
+      p: Math.random() * Math.PI * 2,             // twinkle phase
+      s: 0.35 + Math.random() * 1.1,              // twinkle speed
+      g: Math.random() < 0.18,                    // a few gold ones
+      b: Math.random() < 0.12 ? 2 : 1             // rare 2px "big" stars
+    });
+  }
+  function frame(t) {
+    x.clearRect(0, 0, W, H);
+    for (var i = 0; i < stars.length; i++) {
+      var st = stars[i];
+      var a = 0.14 + 0.6 * Math.pow(0.5 + 0.5 * Math.sin(st.p + t * 0.001 * st.s), 2.2);
+      x.globalAlpha = a;
+      x.fillStyle = st.g ? '#ffd24a' : '#dfe6f2';
+      x.fillRect(st.x, st.y, st.b, st.b);
+    }
+    // occasional slow shooting star
+    if (!shoot && Math.random() < 0.0016) shoot = { x: Math.random() * W * 0.8, y: Math.random() * H * 0.35, v: 0.55 + Math.random() * 0.4, life: 60 };
+    if (shoot) {
+      x.globalAlpha = Math.min(1, shoot.life / 26);
+      x.fillStyle = '#fff';
+      for (var k = 0; k < 5; k++) { x.globalAlpha *= 0.75; x.fillRect((shoot.x - k * 1.6) | 0, (shoot.y - k * 0.8) | 0, 1, 1); }
+      shoot.x += shoot.v * 1.6; shoot.y += shoot.v * 0.8; shoot.life--;
+      if (shoot.life <= 0 || shoot.x > W || shoot.y > H) shoot = null;
+    }
+    x.globalAlpha = 1;
+    requestAnimationFrame(frame);
+  }
+  addEventListener('resize', size);
+  size(); requestAnimationFrame(frame);
+})();
+</script>
 </body>
 </html>
