@@ -109,6 +109,9 @@
 (function () {
   var c = document.getElementById('stars'), x = c.getContext('2d');
   var PX = 5, W, H, img, buf, pts = [];
+  var mx = -9999, my = -9999;                      // cursor in low-res coords
+  addEventListener('pointermove', function (e) { mx = e.clientX / PX; my = e.clientY / PX; });
+  addEventListener('pointerleave', function () { mx = my = -9999; });
   var K = 26;                                      // recomputed per size() — small shards
   function size() {
     W = Math.ceil(innerWidth / PX); H = Math.ceil(innerHeight / PX);
@@ -129,14 +132,24 @@
   function paint(t) {
     if (!cell || cell.length !== W * H) cell = new Int16Array(W * H);
     var px = [], py = [], shade = [];
+    var R = 26;                                    // cursor influence radius (low-res px)
     for (var k = 0; k < K; k++) {
       var p2 = pts[k];
-      px[k] = p2.x + Math.cos(p2.a + t * p2.w) * p2.r;
-      py[k] = p2.y + Math.sin(p2.a + t * p2.w * 0.8) * p2.r;
-      // per-facet sheen: dark base + a slow cold glimmer unique to the shard
+      var cx2 = p2.x + Math.cos(p2.a + t * p2.w) * p2.r;
+      var cy2 = p2.y + Math.sin(p2.a + t * p2.w * 0.8) * p2.r;
+      // cursor reaction: nearby shards catch light and shy away a little.
+      // p2.f eases the influence so it fades in/out instead of snapping.
+      var dxm = cx2 - mx, dym = cy2 - my;
+      var dm = Math.sqrt(dxm * dxm + dym * dym) || 1;
+      var target = Math.max(0, 1 - dm / R);
+      p2.f = (p2.f || 0) + (target - (p2.f || 0)) * 0.14;
+      cx2 += (dxm / dm) * p2.f * 7;
+      cy2 += (dym / dm) * p2.f * 7;
+      px[k] = cx2; py[k] = cy2;
+      // per-facet sheen: dark base + slow cold glimmer + cursor light
       var sheen = 0.5 + 0.5 * Math.sin(t * 0.35 + p2.tone * 12.6);
-      var v = 9 + p2.tone * 10 + sheen * 7;        // 9..26 brightness
-      var r = v | 0, g = (v + 1 + sheen * 2) | 0, b = (v + 4 + sheen * 4) | 0;
+      var v = 9 + p2.tone * 10 + sheen * 7 + p2.f * 26;
+      var r = v | 0, g = (v + 1 + sheen * 2 + p2.f * 6) | 0, b = (v + 4 + sheen * 4 + p2.f * 12) | 0;
       shade[k] = (255 << 24) | (b << 16) | (g << 8) | r;
     }
     var i = 0;
@@ -164,7 +177,7 @@
   var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var last = 0;
   function frame(ts) {
-    if (ts - last > 80) { last = ts; paint(ts * 0.001); }   // ~12 fps — waber, not flicker
+    if (ts - last > 40) { last = ts; paint(ts * 0.001); }   // ~25 fps — the cursor reaction needs it
     requestAnimationFrame(frame);
   }
   addEventListener('resize', function () { size(); paint(0.5); });
