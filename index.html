@@ -4,30 +4,55 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Everbest Games</title>
-<meta name="description" content="Everbest Games — handmade pixel-art games for Android." />
+<meta name="description" content="Everbest Games — pixel-art games." />
 <style>
-  :root { --bg:#0e2430; --fg:#f4efe4; --muted:#9fb3bd; --card:#14313f; --line:#1f4454; --accent:#ffb454; }
+  @font-face {
+    font-family: 'Press Start 2P';
+    src: url('/fonts/PressStart2P-Regular.ttf') format('truetype');
+    font-display: swap;
+  }
+  :root {
+    --bg: #08090c;          /* almost black */
+    --card: #101319;
+    --line: #1d2330;
+    --fg: #e8e6df;
+    --muted: #8b93a3;
+    --gold: #ffd24a;
+    --accent: #ffa24a;
+    --pix: 'Press Start 2P', monospace;
+  }
   * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--fg);
-         font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height:1.65; }
-  .wrap { max-width: 720px; margin: 0 auto; padding: 56px 20px 72px; }
-  header { margin-bottom: 44px; }
-  h1 { font-size: 1.9rem; margin: 0 0 .3em; letter-spacing: .02em; }
-  .tag { color: var(--muted); margin: 0; }
-  h2 { font-size: 1.05rem; text-transform: uppercase; letter-spacing: .08em;
-       color: var(--muted); margin: 44px 0 16px; font-weight: 600; }
-  .game { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
-          padding: 18px 20px; margin-bottom: 14px; }
-  .game h3 { margin: 0 0 .35em; font-size: 1.15rem; }
-  .game p { margin: 0 0 .6em; color: var(--fg); }
-  .game .links { font-size: .9rem; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+         font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.6; }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 0 20px 64px; }
+
+  /* ---- centered pixel logo, like the hub boot splash ---- */
+  header { min-height: 44vh; display: flex; align-items: center; justify-content: center; text-align: center; }
+  .logo { font-family: var(--pix); font-size: clamp(22px, 5.4vw, 44px); letter-spacing: 3px;
+          color: #fff; text-shadow: 4px 4px 0 #23262e; line-height: 1.5; }
+  .logo span { color: var(--gold); text-shadow: 4px 4px 0 #4a3a08; }
+
+  h2 { font-family: var(--pix); font-size: 13px; letter-spacing: 3px; color: var(--muted);
+       text-transform: uppercase; margin: 44px 0 18px; }
+
+  .game { display: flex; align-items: center; gap: 18px;
+          background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+          padding: 18px 20px; margin-bottom: 16px; }
+  .game img { width: 84px; height: 84px; border-radius: 18px; image-rendering: pixelated;
+              border: 2px solid #000; box-shadow: 0 4px 0 rgba(0,0,0,.5); flex: none; }
+  .game h3 { margin: 0 0 .3em; font-size: 1.1rem; }
+  .game p { margin: 0 0 .55em; color: var(--muted); font-size: .95rem; }
+  .game .links a { color: var(--accent); font-size: .88rem; }
   a { color: var(--accent); }
   a:hover { text-decoration: none; }
-  footer { margin-top: 52px; padding-top: 22px; border-top: 1px solid var(--line);
-           color: var(--muted); font-size: .9rem; }
+
+  footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line);
+           color: var(--muted); font-size: .88rem; }
   footer a { color: var(--muted); }
-  @media (prefers-color-scheme: light) {
-    :root { --bg:#fbf7f0; --fg:#17323f; --muted:#5c7481; --card:#fff; --line:#e2ddd2; --accent:#b4661a; }
+
+  @media (max-width: 480px) {
+    .game { flex-direction: row; }
+    .game img { width: 64px; height: 64px; border-radius: 14px; }
   }
 </style>
 </head>
@@ -35,33 +60,35 @@
 <div class="wrap">
 
 <header>
-  <h1>Everbest Games</h1>
-  <p class="tag">Handmade pixel-art games for Android.</p>
+  <h1 class="logo">EVERBEST <span>GAMES</span></h1>
 </header>
 
-<h2>Our games</h2>
+<h2>Our Games</h2>
 
 <div class="game">
-  <h3>EverSurf: Chase the Wave</h3>
-  <p>Road-trip the coast, surf pixel waves, land tricks and go viral.</p>
-  <p class="links"><a href="/eversurf/privacy.html">Privacy policy</a></p>
+  <img src="/assets/eversurf-icon.png" alt="EverSurf app icon" />
+  <div>
+    <h3>EverSurf: Chase the Wave</h3>
+    <p>Road-trip the coast, surf pixel waves, land tricks and go viral.</p>
+    <p class="links"><a href="/eversurf/privacy.html">Privacy policy</a></p>
+  </div>
 </div>
 
 <div class="game">
-  <h3>EVERFEST: Festival Tycoon</h3>
-  <p>Build stages, book bands and run your own pixel music festival.</p>
-  <p class="links"><a href="/everfest/privacy.html">Privacy policy</a></p>
+  <img src="/assets/everfest-icon.png" alt="EVERFEST app icon" />
+  <div>
+    <h3>EVERFEST: Festival Tycoon</h3>
+    <p>Build stages, book bands and run your own pixel music festival.</p>
+    <p class="links"><a href="/everfest/privacy.html">Privacy policy</a></p>
+  </div>
 </div>
 
 <h2>Support</h2>
 <p>Questions, bug reports or feedback about any of our games:
-<a href="mailto:support@everbestgames.de">support@everbestgames.de</a>.
-We read every message.</p>
+<a href="mailto:support@everbestgames.de">support@everbestgames.de</a></p>
 
 <footer>
-  <p>© 2026 Everbest Games ·
-     <a href="/impressum.html">Impressum</a> ·
-     <a href="mailto:support@everbestgames.de">support@everbestgames.de</a></p>
+  <p>© 2026 Everbest Games · <a href="/impressum.html">Impressum</a> · <a href="/datenschutz.html">Datenschutz</a></p>
 </footer>
 
 </div>
